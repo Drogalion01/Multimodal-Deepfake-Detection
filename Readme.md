@@ -1,11 +1,10 @@
-<<<<<<< HEAD
 # Total Kaggle Training Report
 
 ## Executive Summary
 
-The Kaggle run completed successfully on the 970-clip balanced subset and produced strong multimodal results. The video branch reached perfect validation accuracy, the audio branch stayed strong, and the final fusion model achieved 96.77% test accuracy with a 96.77% macro F1 score.
+This repository contains two generations of the multimodal deepfake detection pipeline. The original Kaggle pilot used ConvNeXt + Wav2Vec2 with a two-head fusion classifier and produced strong results on a 970-clip balanced subset. The present, improved approach replaces the video and audio backbones and the fusion strategy with a speaker-aware, cross-attention fusion stack (Video Swin Tiny + WavLM-Base+ + Cross-Attention Fusion) and a staged training workflow. Both approaches and their artifacts are preserved below.
 
-### Key Outcomes
+### Key Outcomes (original pilot)
 
 | Item | Result |
 | --- | ---: |
@@ -17,112 +16,17 @@ The Kaggle run completed successfully on the 970-clip balanced subset and produc
 | Fusion test accuracy | 0.9677 |
 | Fusion macro F1 | 0.9677 |
 
-### Model Stack
+---
+
+## Section A — Original / Previous Models (ConvNeXt + Wav2Vec2)
+
+Summary: the first pilot used ConvNeXt-Tiny for video, Wav2Vec2-Base for audio, and a two-head multimodal classifier. It served as a compact baseline and produced the metrics above. Key files and artifacts are stored under `Outputs/all_deepfake_outputs_new`.
 
 - Video backbone: ConvNeXt-Tiny
 - Audio backbone: Wav2Vec2-Base
-- Fusion model: two-head multimodal classifier with 4-class output
+- Fusion: two-head classifier (video head + audio head → four-class aggregation)
 
-## Run Overview
-
-This report summarizes the full Kaggle training pipeline stored in `Outputs/all_deepfake_outputs_new`.
-
-## Sampled Data Summary
-
-The sampled subset is well distributed across gender, language, and class labels.
-
-| Split Dimension | Count |
-| --- | ---: |
-| Boys | 486 |
-| Girls | 484 |
-| English | 487 |
-| Bangla | 483 |
-| RR | 243 |
-| RF | 243 |
-| FF | 242 |
-| FR | 120 |
-
-The sample manifest is stored at `Outputs/all_deepfake_outputs_new/metadata/sample_manifest.json`.
-
-### Distribution View
-
-```mermaid
-xychart-beta
-    title "Sample Distribution by Class"
-    x-axis ["FF", "FR", "RF", "RR"]
-    y-axis "Clip Count" 0 --> 260
-    bar [242, 120, 243, 243]
-```
-
-```mermaid
-pie title Gender Balance
-    "Boys" : 486
-    "Girls" : 484
-```
-
-```mermaid
-pie title Language Balance
-    "English" : 487
-    "Bangla" : 483
-```
-
-## Model Results
-
-### Video Trainer
-
-| Metric | Value |
-| --- | ---: |
-| Best validation accuracy | 1.0000 |
-| Training samples | 726 |
-| Validation samples | 120 |
-| Test samples | 124 |
-| Best checkpoint | `Outputs/all_deepfake_outputs_new/outputs/convnext_tiny_deepfake_best.pt` |
-
-### Audio Trainer
-
-| Metric | Value |
-| --- | ---: |
-| Best validation accuracy | 0.9333 |
-| Training samples | 726 |
-| Validation samples | 120 |
-| Test samples | 124 |
-| Best checkpoint | `Outputs/all_deepfake_outputs_new/outputs_audio/wav2vec2_base_deepfake_best.pt` |
-
-### Fusion Trainer
-
-| Metric | Value |
-| --- | ---: |
-| Test loss | 0.3365 |
-| Video head accuracy | 0.9839 |
-| Audio head accuracy | 0.9677 |
-| Four-class accuracy | 0.9677 |
-| Four-class macro F1 | 0.9677 |
-| Best validation macro F1 | 1.0000 |
-| Best epoch | 11 |
-| Class names | FF, FR, RF, RR |
-
-```mermaid
-xychart-beta
-  title "Final Model Comparison"
-  x-axis ["Video", "Audio", "Fusion"]
-  y-axis "Accuracy" 0 --> 1.05
-  bar [1.0000, 0.9333, 0.9677]
-```
-
-Fusion test confusion matrix:
-
-| Actual \ Predicted | FF | FR | RF | RR |
-| --- | ---: | ---: | ---: | ---: |
-| FF | 28 | 1 | 2 | 0 |
-| FR | 0 | 31 | 0 | 0 |
-| RF | 0 | 0 | 31 | 0 |
-| RR | 0 | 0 | 1 | 30 |
-
-Fusion metrics are stored in `Outputs/all_deepfake_outputs_new/outputs_fusion_two_head/test_metrics.json`.
-
-## Saved Artifacts
-
-The Kaggle run produced the following main artifacts:
+Artifacts (original pilot):
 
 - `Outputs/all_deepfake_outputs_new/outputs/convnext_tiny_deepfake_best.pt`
 - `Outputs/all_deepfake_outputs_new/outputs/metrics.pt`
@@ -138,174 +42,96 @@ The Kaggle run produced the following main artifacts:
 - `Outputs/all_deepfake_outputs_new/outputs_fusion_two_head/last_checkpoint.pt`
 - `Outputs/all_deepfake_outputs_new/outputs_fusion_two_head/test_metrics.json`
 - `Outputs/all_deepfake_outputs_new/outputs_fusion_two_head/test_metrics.pt`
+- `Outputs/all_deepfake_outputs_new/metadata/sample_manifest.json`
 
-## Interpretation
+If you have additional artifacts from the original run, place them under `Outputs/all_deepfake_outputs_new/` and I'll add them to this list.
 
-The run is strong overall. The video branch reached perfect validation accuracy on the held-out split, the audio branch also performed well, and the multimodal fusion model achieved 96.77% test accuracy with a macro F1 of 96.77%.
+Present model outputs (placeholders)
 
-The remaining errors are concentrated in the FF class, where a few samples were confused with FR or RF. That means the model is already separating the four classes well, but it still benefits from a small amount of extra robustness on the hardest fake-video cases.
+When the new model finishes training, upload its artifacts under `Outputs/multimodal_videoswin_wavlm/` using the folder structure below. Leave the files here and I'll auto-link and summarize them in this README.
 
-## Recommended Next Step
+- `Outputs/multimodal_videoswin_wavlm/outputs_video/<checkpoint_files...>`
+- `Outputs/multimodal_videoswin_wavlm/outputs_audio/<checkpoint_files...>`
+- `Outputs/multimodal_videoswin_wavlm/outputs_fusion/best_checkpoint.pt`
+- `Outputs/multimodal_videoswin_wavlm/outputs_fusion/final_metrics.json`
+- `Outputs/multimodal_videoswin_wavlm/logs/training_log.txt`
 
-If you want to push the result further, the most direct improvements are:
+When you upload, tell me the path to the main metrics file (e.g., `final_metrics.json`) and I'll insert the numeric results and a comparison table into this README.
 
-1. Unfreeze more ConvNeXt blocks for the video branch.
-2. Increase the number of sampled frames per clip.
-3. Try a stronger temporal video encoder or a small temporal attention block before fusion.
-4. Run a second Kaggle sweep with a slightly higher learning-rate search range.
-=======
-# Total Kaggle Training Report
+Notes & known behaviours:
 
-## Executive Summary
+- Video-only branch achieved perfect validation accuracy on the held-out split (likely indicates overfitting on this pilot split; use larger validation or speaker-held splits for production).
+- FF (Fake Video + Fake Audio) samples remain the most confused class in some folds; targeted augmentation can help.
 
-The Kaggle run completed successfully on the 970-clip balanced subset and produced strong multimodal results. The video branch reached perfect validation accuracy, the audio branch stayed strong, and the final fusion model achieved 96.77% test accuracy with a 96.77% macro F1 score.
+---
 
-### Key Outcomes
+## Section B — Present Model Approach (Video Swin Tiny + WavLM-Base+ + Cross-Attention Fusion)
 
-| Item | Result |
-| --- | ---: |
-| Sampled clips | 970 |
-| Unique folders | 240 |
-| Train / Val / Test | 726 / 120 / 124 |
-| Video best val accuracy | 1.0000 |
-| Audio best val accuracy | 0.9333 |
-| Fusion test accuracy | 0.9677 |
-| Fusion macro F1 | 0.9677 |
+Overview: the current implementation moves to stronger backbones and a fusion strategy designed to let audio and video interact via cross-attention. The training is staged to stabilize learning and reduce catastrophic forgetting.
 
-### Model Stack
+Architecture summary:
 
-- Video backbone: ConvNeXt-Tiny
-- Audio backbone: Wav2Vec2-Base
-- Fusion model: two-head multimodal classifier with 4-class output
+- Video backbone: Video Swin Tiny (from `timm.create_model("swinv2_tiny_window...")` or equivalent) producing spatio-temporal video embeddings.
+- Audio backbone: `microsoft/wavlm-base-plus` (WavLM-Base+) using the `transformers` WavLMModel to produce per-frame audio embeddings.
+- Fusion: `CrossAttentionFusion` module — projected audio queries attend to video keys/values (or vice-versa) using `nn.MultiheadAttention` (batch_first=True), followed by layer norms and projection heads.
+- Classification: two-head fusion with separate video/audio heads and a combined 4-class head (FF/FR/RF/RR) used during final evaluation.
 
-## Run Overview
+Training strategy (staged):
 
-This report summarizes the full Kaggle training pipeline stored in `Outputs/all_deepfake_outputs_new`.
+1. Stage A — Train video backbone only (frozen audio + fusion). Stabilizes video features.
+2. Stage B — Fine-tune audio backbone separately (frozen video). Ensures good audio features without cross-modal interference.
+3. Stage C — Train fusion layers with both backbones frozen (learn cross-modal parameters).
+4. Stage D — End-to-end fine-tune (optional, low LR) to squeeze final gains.
 
-## Sampled Data Summary
+Dataset & sampling:
 
-The sampled subset is well distributed across gender, language, and class labels.
+- Speaker-aware pilot construction: pilot manifests are built with speaker-stratified sampling to avoid speaker leakage between train/val/test where possible.
+- Class-balanced sampling is used in DataLoader via `WeightedRandomSampler` to handle class imbalance.
+- Robust I/O: ffmpeg-based audio extraction with `torchaudio` and `scipy` fallbacks; video frames read with `cv2`. Files with unusual names are normalized before class inference.
 
-| Split Dimension | Count |
-| --- | ---: |
-| Boys | 486 |
-| Girls | 484 |
-| English | 487 |
-| Bangla | 483 |
-| RR | 243 |
-| RF | 243 |
-| FF | 242 |
-| FR | 120 |
+Training reliability measures:
 
-The sample manifest is stored at `Outputs/all_deepfake_outputs_new/metadata/sample_manifest.json`.
+- Mixed precision training using `torch.cuda.amp` (autocast + GradScaler).
+- Gradient accumulation and adjustable batch sizes for GPU memory control.
+- Safe split logic: falls back to deterministic shuffle splits if speaker-stratified splitting is impossible for a given subset.
 
-### Distribution View
+Expected artifacts (present approach):
 
-```mermaid
-xychart-beta
-    title "Sample Distribution by Class"
-    x-axis ["FF", "FR", "RF", "RR"]
-    y-axis "Clip Count" 0 --> 260
-    bar [242, 120, 243, 243]
-```
+- `Outputs/multimodal_videoswin_wavlm/outputs_video/*` (video-only checkpoints)
+- `Outputs/multimodal_videoswin_wavlm/outputs_audio/*` (audio-only checkpoints)
+- `Outputs/multimodal_videoswin_wavlm/outputs_fusion/*` (fusion checkpoints and final metrics)
+- pilot manifests: `Outputs/pilot_manifests/pilot_manifest_970.json`
 
-```mermaid
-pie title Gender Balance
-    "Boys" : 486
-    "Girls" : 484
-```
+Practical notes and reproducibility
 
-```mermaid
-pie title Language Balance
-    "English" : 487
-    "Bangla" : 483
-```
+- To reproduce Stage A quickly, set `RUN_TRAINING=False` except the Stage A cell(s) and run for 1–2 epochs to sanity-check shapes and numerical stability.
+- If you see shape errors in the WavLM backbone, ensure audio tensors are `[batch, time]` (squeeze channel dims introduced by some load pipelines).
+- For large-scale runs, keep a snapshot of the `pilot_manifest_970.json` and the exact `transformers` / `timm` versions used.
 
-## Model Results
+---
 
-### Video Trainer
+## Comparison: Previous vs Present
 
-| Metric | Value |
-| --- | ---: |
-| Best validation accuracy | 1.0000 |
-| Training samples | 726 |
-| Validation samples | 120 |
-| Test samples | 124 |
-| Best checkpoint | `Outputs/all_deepfake_outputs_new/outputs/convnext_tiny_deepfake_best.pt` |
+- Strengths (previous): simpler, faster to train for quick pilots; ConvNeXt + Wav2Vec2 is a solid baseline and useful for ablation.
+- Strengths (present): better temporal modelling (Swin), stronger audio representations (WavLM-Base+), and explicit cross-modal interactions via attention — typically improves robustness to subtle multimodal manipulations.
+- Tradeoffs: the present approach is heavier (more parameters), requires careful AMP/accumulation setup and longer tuning. Use smaller pilot runs to confirm setup before a full sweep.
 
-### Audio Trainer
+---
 
-| Metric | Value |
-| --- | ---: |
-| Best validation accuracy | 0.9333 |
-| Training samples | 726 |
-| Validation samples | 120 |
-| Test samples | 124 |
-| Best checkpoint | `Outputs/all_deepfake_outputs_new/outputs_audio/wav2vec2_base_deepfake_best.pt` |
+## Where to look next
 
-### Fusion Trainer
+- See `kaggle_videoswin_wavlm_multimodal_training.ipynb` for the full present-model training notebook and staged-run cells.
+- Sample manifest and pilot utilities are in `Notebooks` (search for `pilot_manifest_970.json` and `discover_clip_records`).
+- If you want, I can: run a one-batch dry-run locally (forward pass) to validate dataloaders and model shapes; or create a small `README_quickstart.md` with the exact commands to run Stage A.
 
-| Metric | Value |
-| --- | ---: |
-| Test loss | 0.3365 |
-| Video head accuracy | 0.9839 |
-| Audio head accuracy | 0.9677 |
-| Four-class accuracy | 0.9677 |
-| Four-class macro F1 | 0.9677 |
-| Best validation macro F1 | 1.0000 |
-| Best epoch | 11 |
-| Class names | FF, FR, RF, RR |
+---
 
-```mermaid
-xychart-beta
-  title "Final Model Comparison"
-  x-axis ["Video", "Audio", "Fusion"]
-  y-axis "Accuracy" 0 --> 1.05
-  bar [1.0000, 0.9333, 0.9677]
-```
+## Contact / Repro tips
 
-Fusion test confusion matrix:
+- Recommended packages: `torch>=2.0`, `timm`, `transformers`, `torchaudio`, `opencv-python`, `scipy` (for wav fallback), and `ffmpeg` available on PATH.
+- Keep a copy of the pilot manifest and the `requirements.txt` used for the run to reproduce exact results.
 
-| Actual \ Predicted | FF | FR | RF | RR |
-| --- | ---: | ---: | ---: | ---: |
-| FF | 28 | 1 | 2 | 0 |
-| FR | 0 | 31 | 0 | 0 |
-| RF | 0 | 0 | 31 | 0 |
-| RR | 0 | 0 | 1 | 30 |
+---
 
-Fusion metrics are stored in `Outputs/all_deepfake_outputs_new/outputs_fusion_two_head/test_metrics.json`.
+Credits: dataset assembly and sampling scripts by the project team. Updated README prepared to document the transition to the cross-attention fusion stack.
 
-## Saved Artifacts
-
-The Kaggle run produced the following main artifacts:
-
-- `Outputs/all_deepfake_outputs_new/outputs/convnext_tiny_deepfake_best.pt`
-- `Outputs/all_deepfake_outputs_new/outputs/metrics.pt`
-- `Outputs/all_deepfake_outputs_new/outputs/train_embeddings.pt`
-- `Outputs/all_deepfake_outputs_new/outputs/val_embeddings.pt`
-- `Outputs/all_deepfake_outputs_new/outputs/test_embeddings.pt`
-- `Outputs/all_deepfake_outputs_new/outputs_audio/wav2vec2_base_deepfake_best.pt`
-- `Outputs/all_deepfake_outputs_new/outputs_audio/metrics.pt`
-- `Outputs/all_deepfake_outputs_new/outputs_audio/train_embeddings.pt`
-- `Outputs/all_deepfake_outputs_new/outputs_audio/val_embeddings.pt`
-- `Outputs/all_deepfake_outputs_new/outputs_audio/test_embeddings.pt`
-- `Outputs/all_deepfake_outputs_new/outputs_fusion_two_head/best_checkpoint.pt`
-- `Outputs/all_deepfake_outputs_new/outputs_fusion_two_head/last_checkpoint.pt`
-- `Outputs/all_deepfake_outputs_new/outputs_fusion_two_head/test_metrics.json`
-- `Outputs/all_deepfake_outputs_new/outputs_fusion_two_head/test_metrics.pt`
-
-## Interpretation
-
-The run is strong overall. The video branch reached perfect validation accuracy on the held-out split, the audio branch also performed well, and the multimodal fusion model achieved 96.77% test accuracy with a macro F1 of 96.77%.
-
-The remaining errors are concentrated in the FF class, where a few samples were confused with FR or RF. That means the model is already separating the four classes well, but it still benefits from a small amount of extra robustness on the hardest fake-video cases.
-
-## Recommended Next Step
-
-If you want to push the result further, the most direct improvements are:
-
-1. Unfreeze more ConvNeXt blocks for the video branch.
-2. Increase the number of sampled frames per clip.
-3. Try a stronger temporal video encoder or a small temporal attention block before fusion.
-4. Run a second Kaggle sweep with a slightly higher learning-rate search range.
->>>>>>> 23fb12c4f880a1cb7b5f20ebdfe4de8270de0e6b
