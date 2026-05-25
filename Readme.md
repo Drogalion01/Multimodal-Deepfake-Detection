@@ -58,6 +58,32 @@ When the new model finishes training, upload its artifacts under `Outputs/multim
 
 When you upload, tell me the path to the main metrics file (e.g., `final_metrics.json`) and I'll insert the numeric results and a comparison table into this README.
 
+### Kaggle saved notebook with outputs
+
+The saved Kaggle notebook that contains the training outputs is here:
+
+- [Kaggle notebook: FakeBDTeenTesting](https://www.kaggle.com/code/mahirashab/fakebdteentesting/notebook?scriptVersionId=322055664)
+
+Use that notebook page to open the saved outputs, then look for the files listed below. This README keeps the local file names so anyone can match the notebook output to the artifact on disk.
+
+Output file index:
+
+- `Outputs/all_deepfake_outputs_new/outputs/convnext_tiny_deepfake_best.pt`
+- `Outputs/all_deepfake_outputs_new/outputs/metrics.pt`
+- `Outputs/all_deepfake_outputs_new/outputs/train_embeddings.pt`
+- `Outputs/all_deepfake_outputs_new/outputs/val_embeddings.pt`
+- `Outputs/all_deepfake_outputs_new/outputs/test_embeddings.pt`
+- `Outputs/all_deepfake_outputs_new/outputs_audio/wav2vec2_base_deepfake_best.pt`
+- `Outputs/all_deepfake_outputs_new/outputs_audio/metrics.pt`
+- `Outputs/all_deepfake_outputs_new/outputs_audio/train_embeddings.pt`
+- `Outputs/all_deepfake_outputs_new/outputs_audio/val_embeddings.pt`
+- `Outputs/all_deepfake_outputs_new/outputs_audio/test_embeddings.pt`
+- `Outputs/all_deepfake_outputs_new/outputs_fusion_two_head/best_checkpoint.pt`
+- `Outputs/all_deepfake_outputs_new/outputs_fusion_two_head/last_checkpoint.pt`
+- `Outputs/all_deepfake_outputs_new/outputs_fusion_two_head/test_metrics.json`
+- `Outputs/all_deepfake_outputs_new/outputs_fusion_two_head/test_metrics.pt`
+- `Outputs/all_deepfake_outputs_new/metadata/sample_manifest.json`
+
 Notes & known behaviours:
 
 - Video-only branch achieved perfect validation accuracy on the held-out split (likely indicates overfitting on this pilot split; use larger validation or speaker-held splits for production).
